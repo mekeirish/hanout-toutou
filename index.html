@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>{{VENDOR}} - Catalogue</title>
+  <title>toutou - Catalogue</title>
   
-  <meta name="description" content="Boutique {{VENDOR}} - Commandez en ligne" />
-  <meta property="og:title" content="{{VENDOR}} - Catalogue" />
+  <meta name="description" content="Boutique toutou - Commandez en ligne" />
+  <meta property="og:title" content="toutou - Catalogue" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://mekeirish.github.io/hanout-{{VENDOR}}/" />
-  <meta property="og:description" content="Boutique {{VENDOR}} - Commandez en ligne" />
+  <meta property="og:url" content="https://mekeirish.github.io/hanout-toutou/" />
+  <meta property="og:description" content="Boutique toutou - Commandez en ligne" />
   <meta name="theme-color" content="#0f172a" />
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -173,7 +173,7 @@
   var auth = firebase.auth();
   var db = firebase.database();
 
-  // ---- DÉCODE ENTITÉS HTML ----
+  // ---- DÃCODE ENTITÃS HTML ----
   var decodeEntities = function(str) {
     if (!str) return "";
     try {
@@ -286,7 +286,7 @@
   };
 
   function App() {
-    var VENDOR = "{{VENDOR}}";
+    var VENDOR = "toutou";
     var isPlaceholder = VENDOR.startsWith("{{");
 
     var params = new URLSearchParams(window.location.search);
@@ -294,7 +294,7 @@
     var deducedVendor = repoName.startsWith('hanout-') ? repoName.replace('hanout-', '') : null;
     var vendeur = params.get("vendeur") || deducedVendor || localStorage.getItem("vendeur_name") || VENDOR;
 
-    // ---- ÉTATS ----
+    // ---- ÃTATS ----
     var [sogUser, setSogUser] = useState(null);
     var [isReady, setIsReady] = useState(false);
     var [fgtToken, setFgtToken] = useState('');
@@ -320,7 +320,7 @@
     var [order, setOrder] = useState({ name: "", address: "", phone: "", comments: "" });
     var [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
-    // ---- SCHÉMA ----
+    // ---- SCHÃMA ----
     var schema = {
       categories: {
         label: TEXTS.categories,
@@ -423,7 +423,7 @@
               setIsAdmin(false);
             }
           }).catch(function(err) {
-            console.error("Erreur vérification vendeur", err);
+            console.error("Erreur vÃ©rification vendeur", err);
             setIsAdmin(false);
           });
         } else {
@@ -435,18 +435,18 @@
       return function() { unsubscribe(); };
     }, [vendeur]);
 
-    // ---- IFRAME SOG (réception de l'auth) ----
+    // ---- IFRAME SOG (rÃ©ception de l'auth) ----
     useEffect(function() {
       var handleMessage = function(event) {
         if (event.data.type === 'SOG_AUTH') {
           var cleaned = cleanSogUser(event.data.payload.user);
           setSogUser(cleaned);
-          console.log('✅ Utilisateur SOG reçu:', cleaned);
+          console.log('â Utilisateur SOG reÃ§u:', cleaned);
         }
       };
       window.addEventListener('message', handleMessage);
       
-      // Demander l'authentification à SOG (si déjà connecté)
+      // Demander l'authentification Ã  SOG (si dÃ©jÃ  connectÃ©)
       window.parent.postMessage({ type: 'SOG_READY' }, '*');
       setIsReady(true);
       
@@ -455,7 +455,7 @@
       };
     }, []);
 
-    // ---- CHARGEMENT DONNÉES ----
+    // ---- CHARGEMENT DONNÃES ----
     useEffect(function() {
       var stored = localStorage.getItem('fgt_token_' + repoName);
       if (stored) {
@@ -539,7 +539,7 @@
         var getRes = await fetch(url, { headers: { Authorization: "token " + token } });
         if (getRes.ok) { var d = await getRes.json(); sha = d.sha; }
       } catch (e) {}
-      var payload = { message: "Mise à jour", content: encoded, branch: "main" };
+      var payload = { message: "Mise Ã  jour", content: encoded, branch: "main" };
       if (sha) payload.sha = sha;
       var putRes = await fetch(url, {
         method: "PUT",
@@ -655,7 +655,7 @@
         if (editableData.categories.length > 0) {
           catId = editableData.categories[0].id;
         } else {
-          alert("Veuillez créer une catégorie avant d'ajouter un produit.");
+          alert("Veuillez crÃ©er une catÃ©gorie avant d'ajouter un produit.");
           return;
         }
       }
@@ -746,7 +746,7 @@
       }, 0).toFixed(2);
     };
 
-    // ---- ENVOI COMMANDE À SOG ----
+    // ---- ENVOI COMMANDE Ã SOG ----
     var sendOrderToSOG = function(orderData) {
       window.parent.postMessage({
         type: 'SOG_ORDER',
@@ -777,7 +777,7 @@
         return;
       }
 
-      console.log('📦 Passage de commande pour', sogUser.email, '(UID:', sogUser.uid, ')');
+      console.log('ð¦ Passage de commande pour', sogUser.email, '(UID:', sogUser.uid, ')');
 
       // ---- ENREGISTREMENT DIRECT DANS FIREBASE ----
       try {
@@ -795,30 +795,30 @@
           customerAddress: order.address,
           comments: order.comments || ""
         };
-        console.log('📝 Commande à enregistrer:', orderData);
+        console.log('ð Commande Ã  enregistrer:', orderData);
         await db.ref('orders').push(orderData);
-        console.log('✅ Commande enregistrée dans Firebase');
+        console.log('â Commande enregistrÃ©e dans Firebase');
 
-        // ---- ENVOI À SOG POUR REAFFICHAGE ----
+        // ---- ENVOI Ã SOG POUR REAFFICHAGE ----
         window.parent.postMessage({
           type: 'SOG_ORDER_SAVED',
           payload: { userId: sogUser.uid, email: sogUser.email }
         }, '*');
-        console.log('📤 Notification SOG_ORDER_SAVED envoyée');
+        console.log('ð¤ Notification SOG_ORDER_SAVED envoyÃ©e');
 
       } catch (err) {
-        console.error('❌ Erreur Firebase:', err);
+        console.error('â Erreur Firebase:', err);
         alert('Erreur lors de l\'enregistrement de la commande.');
         return;
       }
 
-      // ---- ENVOI À SOG ----
+      // ---- ENVOI Ã SOG ----
       sendOrderToSOG(order);
 
       // ---- NOTIFICATION NTFY ----
       var topic = editableData?.settings?.ntfyTopic;
       if (topic) {
-        var currencySymbol = editableData?.settings?.currency || "€";
+        var currencySymbol = editableData?.settings?.currency || "â¬";
         var total = getTotal();
         var message = decodeEntities(TEXTS.orderRecap) + "\n\n";
         message += decodeEntities(TEXTS.client) + " : " + decodeEntities(order.name) + "\n";
@@ -843,13 +843,13 @@
       setCart([]);
       setOrder({ name: "", address: "", phone: "", comments: "" });
       setShowCart(false);
-      alert("Commande validée !");
+      alert("Commande validÃ©e !");
     };
 
     // ---- UTILITAIRES ----
     var getCategoryName = function(id) {
       var cat = data?.categories?.find(function(c) { return c.id === id; });
-      return cat ? cat.name : "Sans catégorie";
+      return cat ? cat.name : "Sans catÃ©gorie";
     };
 
     var hasPending = function(item, type) {
@@ -888,7 +888,7 @@
       if (field.type === "select") {
         var options = field.options === "categories" ? (editableData?.categories || []) : [];
         if (options.length === 0) {
-          return <p className="text-yellow-400 text-sm">Aucune catégorie disponible.</p>;
+          return <p className="text-yellow-400 text-sm">Aucune catÃ©gorie disponible.</p>;
         }
         return (
           <select key={field.key} value={val} onChange={onChange} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" required>
@@ -943,7 +943,7 @@
     }
 
     var settings = editableData?.settings || {};
-    var currency = settings.currency || "€";
+    var currency = settings.currency || "â¬";
     var cartCount = cart.reduce(function(s, i) { return s + i.quantity; }, 0);
 
     return (
@@ -964,7 +964,7 @@
               ) : null}
               {firebaseUser && isAdmin && (
                 <span className="text-xs bg-blue-900/40 text-blue-200 px-2 py-1 rounded-full">
-                  🔐 Admin
+                  ð Admin
                 </span>
               )}
             </div>
@@ -1032,7 +1032,7 @@
                     className="glass-input flex-1 px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
                   />
                   <button onClick={saveFgtToken} className="glass-btn px-4 py-2 rounded-xl text-sm font-medium">
-                    {isTokenSaved ? 'Sauvegardé' : 'Sauvegarder'}
+                    {isTokenSaved ? 'SauvegardÃ©' : 'Sauvegarder'}
                   </button>
                 </div>
                 {isTokenSaved && (
@@ -1065,7 +1065,7 @@
                     );
                   })}
                   {editableData?.categories?.length === 0 && (
-                    <p className="text-gray-400 text-sm text-center py-4">Aucune catégorie pour l'instant.</p>
+                    <p className="text-gray-400 text-sm text-center py-4">Aucune catÃ©gorie pour l'instant.</p>
                   )}
                 </div>
               </div>
@@ -1084,7 +1084,7 @@
                         <img src={p.image} alt={p.name} className="w-10 h-10 object-cover rounded-xl" onError={function(e) { e.target.src = "https://via.placeholder.com/50"; }} />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-white truncate">{decodeEntities(p.name)}</p>
-                          <p className="text-xs text-gray-400">{p.price}{currency} · {decodeEntities(getCategoryName(p.categoryId))} · {decodeEntities(TEXTS.stockInfo)}{p.stock}</p>
+                          <p className="text-xs text-gray-400">{p.price}{currency} Â· {decodeEntities(getCategoryName(p.categoryId))} Â· {decodeEntities(TEXTS.stockInfo)}{p.stock}</p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <button onClick={function() { openProdModal(p); }} className="text-gray-400 hover:text-white text-sm px-2 py-1 rounded bg-white/5">
@@ -1174,7 +1174,7 @@
               )}
 
               <div className="mt-8 text-center text-xs text-gray-500 border-t border-slate-800 pt-4">
-                {(data?.products || []).length} {decodeEntities(TEXTS.products)} · {(data?.categories || []).length} {decodeEntities(TEXTS.categories)}
+                {(data?.products || []).length} {decodeEntities(TEXTS.products)} Â· {(data?.categories || []).length} {decodeEntities(TEXTS.categories)}
                 {settings.ntfyTopic && <span className="ml-4">{settings.ntfyTopic}</span>}
                 {sogUser && <span className="ml-4">{decodeEntities(TEXTS.connected)}</span>}
               </div>
