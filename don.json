@@ -1,0 +1,10 @@
+{
+  "settings": {
+    "title": "Boutique de toutou",
+    "currency": "DZD",
+    "showStock": true,
+    "ntfyTopic": "toutou_commandes"
+  },
+  "categories": [],
+  "products": []
+}
