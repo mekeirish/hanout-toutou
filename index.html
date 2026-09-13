@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>{{VENDOR}} - Catalogue</title>
+  
+  <meta name="description" content="Boutique {{VENDOR}} - Commandez en ligne" />
+  <meta property="og:title" content="{{VENDOR}} - Catalogue" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mekeirish.github.io/hanout-{{VENDOR}}/" />
+  <meta property="og:description" content="Boutique {{VENDOR}} - Commandez en ligne" />
+  <meta name="theme-color" content="#0f172a" />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+
+  <style>
+    .glass {
+      background: rgba(30,41,59,0.4);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .glass-card {
+      background: rgba(30,41,59,0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      transform: translateY(-2px);
+    }
+    .glass-header {
+      background: rgba(15,23,42,0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .glass-modal {
+      background: rgba(15,23,42,0.8);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 24px 48px rgba(0,0,0,0.6);
+    }
+    .glass-input {
+      background: rgba(15,23,42,0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .glass-input:focus {
+      border-color: rgba(59,130,246,0.5);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .glass-btn {
+      background: rgba(59,130,246,0.25);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: #f1f5f9;
+      transition: all 0.2s ease;
+    }
+    .glass-btn:hover:not(:disabled) {
+      background: rgba(59,130,246,0.4);
+      border-color: rgba(59,130,246,0.5);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.2);
+    }
+    .glass-btn-secondary {
+      background: rgba(51,65,85,0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #f1f5f9;
+      transition: all 0.2s ease;
+    }
+    .glass-btn-secondary:hover:not(:disabled) {
+      background: rgba(51,65,85,0.5);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-1px);
+    }
+    .glass-category {
+      background: rgba(30,41,59,0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #cbd5e1;
+      transition: all 0.2s ease;
+    }
+    .glass-category.active {
+      background: rgba(59,130,246,0.3);
+      border-color: rgba(59,130,246,0.4);
+      color: #f1f5f9;
+      box-shadow: 0 4px 16px rgba(59,130,246,0.15);
+    }
+    .glass-category:hover:not(.active) {
+      background: rgba(30,41,59,0.5);
+      border-color: rgba(255,255,255,0.15);
+    }
+    .cart-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ef4444;
+      color: white;
+      border-radius: 9999px;
+      font-size: 0.6rem;
+      padding: 0.1rem 0.4rem;
+      min-width: 1.2rem;
+      text-align: center;
+    }
+    .modal-overlay {
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+    }
+    .glass-alert {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+    .spinner {
+      border: 3px solid #1e293b;
+      border-top: 3px solid #3b82f6;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-animate { animation: fadeIn 0.2s ease-out; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const { useState, useEffect, useRef } = React;
+
+  // ---- FIREBASE INIT ----
+  var firebaseConfig = {
+    apiKey: "AIzaSyCegKjHSw2DzF1zcBVdG6iZyGK2P3ig1rM",
+    authDomain: "sog-hanout.firebaseapp.com",
+    projectId: "sog-hanout",
+    storageBucket: "sog-hanout.firebasestorage.app",
+    messagingSenderId: "108437302312",
+    appId: "1:108437302312:web:9faa1f7084e5797cf9591d",
+    measurementId: "G-V1VFE9YDE3",
+    databaseURL: "https://sog-hanout-default-rtdb.europe-west1.firebasedatabase.app/"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+  var db = firebase.database();
+
+  // ---- DÉCODE ENTITÉS HTML ----
+  var decodeEntities = function(str) {
+    if (!str) return "";
+    try {
+      var txt = document.createElement('textarea');
+      txt.innerHTML = str;
+      return txt.value;
+    } catch (e) {
+      return str;
+    }
+  };
+
+  // ---- TEXTES STATIQUES ----
+  var TEXTS = {
+    admin: "Admin",
+    cart: "Panier",
+    cartEmpty: "Panier vide",
+    total: "Total",
+    validateOrder: "Valider la commande",
+    inviteMode: "Vous &ecirc;tes en mode invit&eacute;.",
+    connect: "Connectez-vous",
+    toOrder: "pour passer une commande.",
+    search: "Rechercher...",
+    all: "Tous",
+    noResult: "Aucun produit ne correspond.",
+    emptyCategory: "Aucun produit dans cette cat&eacute;gorie.",
+    products: "PRODUITS",
+    categories: "CAT&Eacute;GORIES",
+    connected: "Connect&eacute;",
+    adminPanel: "PANEL ADMIN",
+    configTitle: "Configuration",
+    configCurrency: "Devise",
+    configTopic: "Topic ntfy",
+    fgtTitle: "Token FGT (pour le commit)",
+    fgtPlaceholder: "Entrez votre token fine-grained",
+    fgtSaved: "Token sauvegard&eacute; dans votre navigateur.",
+    fgtInfo: "Le token est stock&eacute; localement dans votre navigateur.",
+    addCategory: "Ajouter",
+    modify: "Modifier",
+    delete: "Supprimer",
+    addProduct: "Ajouter",
+    commit: "Sauvegarder (Commit)",
+    saving: "Sauvegarde...",
+    saveSuccess: "Donn&eacute;es sauvegard&eacute;es sur GitHub",
+    saveFail: "&Eacute;chec : ",
+    passwordModalTitle: "Acc&egrave;s admin",
+    passwordPlaceholder: "Mot de passe",
+    validate: "Valider",
+    cancel: "Annuler",
+    loginRequired: "Connectez-vous &agrave; SOG pour valider la commande",
+    namePlaceholder: "Nom complet *",
+    addressPlaceholder: "Adresse *",
+    phonePlaceholder: "T&eacute;l&eacute;phone *",
+    commentsPlaceholder: "Commentaires (facultatif)",
+    addCategoryTitle: "Nouvelle cat&eacute;gorie",
+    editCategoryTitle: "Modifier la cat&eacute;gorie",
+    addProductTitle: "Nouveau produit",
+    editProductTitle: "Modifier le produit",
+    create: "Cr&eacute;er",
+    save: "Sauvegarder",
+    choose: "Choisir...",
+    nameLabel: "Nom",
+    priceLabel: "Prix",
+    imageLabel: "URL image",
+    categoryLabel: "Cat&eacute;gorie",
+    stockLabel: "Stock",
+    uploadImage: "T&eacute;l&eacute;charger une image",
+    preview: "Aper&ccedil;u",
+    cartTitle: "Mon Panier",
+    addToCart: "Ajouter au panier",
+    outOfStock: "Rupture",
+    connectionRequired: "Connexion requise",
+    configRequired: "Configuration requise",
+    templateNotConfigured: "Le template n'a pas &eacute;t&eacute; configur&eacute;.",
+    vendorIncorrect: "Le vendeur n'a pas &eacute;t&eacute; configur&eacute; correctement.",
+    useForkeur: "Utilisez le forkeur pour cr&eacute;er une boutique.",
+    connectedAs: "Connect&eacute; en tant que",
+    invite: "Invit&eacute;",
+    shopTitle: "Catalogue",
+    newCategory: "Nouvelle cat&eacute;gorie",
+    newProduct: "Nouveau produit",
+    imageUploaded: "Image t&eacute;l&eacute;charg&eacute;e avec succ&egrave;s !",
+    imageError: "Erreur lors de l'upload de l'image.",
+    tokenSaved: "Token FGT sauvegard&eacute; avec succ&egrave;s !",
+    tokenInvalid: "Veuillez entrer un token valide.",
+    accessGranted: "Acc&egrave;s admin autoris&eacute;",
+    passwordIncorrect: "Mot de passe incorrect",
+    categorySaved: "Cat&eacute;gorie sauvegard&eacute;e",
+    categoryDeleted: "Cat&eacute;gorie supprim&eacute;e",
+    productSaved: "Produit sauvegard&eacute;",
+    productDeleted: "Produit supprim&eacute;",
+    categoryConfirmDelete: "Supprimer cette cat&eacute;gorie ?",
+    productConfirmDelete: "Supprimer ce produit ?",
+    stockInfo: "Stock: ",
+    rupture: "Rupture",
+    orderRecap: "R&Eacute;CAPITULATIF",
+    client: "Client",
+    address: "Adresse",
+    phone: "T&eacute;l",
+    comment: "Remarque",
+    none: "Aucun",
+    items: "Articles command&eacute;s",
+    totalLabel: "TOTAL",
+    newOrder: "NOUVELLE COMMANDE",
+    loginWithEmail: "Email",
+    passwordField: "Mot de passe",
+    loginBtn: "Se connecter",
+    logoutBtn: "D&eacute;connexion",
+    loginError: "Erreur de connexion",
+    loginSuccess: "Connexion r&eacute;ussie"
+  };
+
+  function App() {
+    var VENDOR = "{{VENDOR}}";
+    var isPlaceholder = VENDOR.startsWith("{{");
+
+    var params = new URLSearchParams(window.location.search);
+    var repoName = window.location.pathname.split('/')[1] || '';
+    var deducedVendor = repoName.startsWith('hanout-') ? repoName.replace('hanout-', '') : null;
+    var vendeur = params.get("vendeur") || deducedVendor || localStorage.getItem("vendeur_name") || VENDOR;
+
+    // ---- ÉTATS ----
+    var [sogUser, setSogUser] = useState(null);
+    var [isReady, setIsReady] = useState(false);
+    var [fgtToken, setFgtToken] = useState('');
+    var [isTokenSaved, setIsTokenSaved] = useState(false);
+    var [isLoading, setIsLoading] = useState(true);
+    var [data, setData] = useState(null);
+    var [editableData, setEditableData] = useState(null);
+    var [firebaseUser, setFirebaseUser] = useState(null);
+    var [isAdmin, setIsAdmin] = useState(false);
+    var [showLoginModal, setShowLoginModal] = useState(false);
+    var [loginEmail, setLoginEmail] = useState('');
+    var [loginPassword, setLoginPassword] = useState('');
+    var [isLoginProcessing, setIsLoginProcessing] = useState(false);
+    var [msg, setMsg] = useState({ text: "", type: "" });
+    var [isCommitting, setIsCommitting] = useState(false);
+    var [modal, setModal] = useState({ open: false, type: "", item: null, creating: false });
+    var [formData, setFormData] = useState({});
+    var [cart, setCart] = useState([]);
+    var [showCart, setShowCart] = useState(false);
+    var [expandedImage, setExpandedImage] = useState(null);
+    var [selectedCategoryId, setSelectedCategoryId] = useState(null);
+    var [searchQuery, setSearchQuery] = useState("");
+    var [order, setOrder] = useState({ name: "", address: "", phone: "", comments: "" });
+    var [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+    // ---- SCHÉMA ----
+    var schema = {
+      categories: {
+        label: TEXTS.categories,
+        fields: [
+          { key: "name", label: TEXTS.nameLabel, type: "text", required: true },
+        ]
+      },
+      products: {
+        label: TEXTS.products,
+        fields: [
+          { key: "name", label: TEXTS.nameLabel, type: "text", required: true },
+          { key: "price", label: TEXTS.priceLabel, type: "number", step: "0.01", required: true },
+          { key: "image", label: TEXTS.imageLabel, type: "text" },
+          { key: "categoryId", label: TEXTS.categoryLabel, type: "select", options: "categories" },
+          { key: "stock", label: TEXTS.stockLabel, type: "number" },
+        ]
+      }
+    };
+
+    // ---- FONCTIONS UTILITAIRES ----
+    var utf8ToBase64 = function(str) {
+      try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return btoa(str); }
+    };
+    var base64ToUtf8 = function(str) {
+      try { return decodeURIComponent(escape(atob(str.replace(/\s/g, '')))); } catch(e) { return ""; }
+    };
+
+    var cleanSogUser = function(user) {
+      if (!user) return null;
+      var cleaned = { ...user };
+      Object.keys(cleaned).forEach(function(key) {
+        if (typeof cleaned[key] === 'string') {
+          cleaned[key] = decodeEntities(cleaned[key]);
+        }
+      });
+      return cleaned;
+    };
+
+    // ---- CLOUDINARY ----
+    var openCloudinaryWidget = function(fieldKey) {
+      if (!window.cloudinary) {
+        alert(decodeEntities(TEXTS.imageError));
+        return;
+      }
+      var widget = window.cloudinary.createUploadWidget(
+        {
+          cloudName: 'h91be5lz',
+          uploadPreset: 'hanout_upload',
+          sources: ['local', 'url', 'camera'],
+          multiple: false,
+          maxFiles: 1,
+          folder: 'hanout_products',
+          resourceType: 'image',
+          clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+          maxImageFileSize: 5000000,
+          styles: {
+            palette: {
+              window: '#1e293b',
+              sourceBg: '#0f172a',
+              windowBorder: '#334155',
+              tabIcon: '#3b82f6',
+              inactiveTabIcon: '#94a3b8',
+              menuIcons: '#3b82f6',
+              link: '#3b82f6',
+              action: '#3b82f6',
+              inProgress: '#3b82f6',
+              complete: '#34d399',
+              error: '#f87171',
+              textDark: '#f1f5f9',
+              textLight: '#94a3b8'
+            }
+          }
+        },
+        function(error, result) {
+          if (error) {
+            console.error("Cloudinary error:", error);
+            alert(decodeEntities(TEXTS.imageError));
+            return;
+          }
+          if (result.event === 'success') {
+            var secureUrl = result.info.secure_url;
+            setFormData(function(prev) { return { ...prev, [fieldKey]: secureUrl }; });
+            setMsg({ text: TEXTS.imageUploaded, type: "success" });
+          }
+        }
+      );
+      widget.open();
+    };
+
+    // ---- AUTH FIREBASE (local) ----
+    useEffect(function() {
+      var unsubscribe = auth.onAuthStateChanged(function(user) {
+        if (user) {
+          setFirebaseUser(user);
+          db.ref('vendors/' + vendeur).once('value').then(function(snapshot) {
+            var vendorData = snapshot.val();
+            if (vendorData && vendorData.uid === user.uid) {
+              setIsAdmin(true);
+            } else {
+              setIsAdmin(false);
+            }
+          }).catch(function(err) {
+            console.error("Erreur vérification vendeur", err);
+            setIsAdmin(false);
+          });
+        } else {
+          setFirebaseUser(null);
+          setIsAdmin(false);
+          setIsAdminAuthenticated(false);
+        }
+      });
+      return function() { unsubscribe(); };
+    }, [vendeur]);
+
+    // ---- IFRAME SOG (réception de l'auth) ----
+    useEffect(function() {
+      var handleMessage = function(event) {
+        if (event.data.type === 'SOG_AUTH') {
+          var cleaned = cleanSogUser(event.data.payload.user);
+          setSogUser(cleaned);
+          console.log('✅ Utilisateur SOG reçu:', cleaned);
+        }
+      };
+      window.addEventListener('message', handleMessage);
+      
+      // Demander l'authentification à SOG (si déjà connecté)
+      window.parent.postMessage({ type: 'SOG_READY' }, '*');
+      setIsReady(true);
+      
+      return function() {
+        window.removeEventListener('message', handleMessage);
+      };
+    }, []);
+
+    // ---- CHARGEMENT DONNÉES ----
+    useEffect(function() {
+      var stored = localStorage.getItem('fgt_token_' + repoName);
+      if (stored) {
+        setFgtToken(stored);
+        setIsTokenSaved(true);
+      }
+    }, []);
+
+    var MASTER_TOKEN = null;
+    function getToken() {
+      if (MASTER_TOKEN) return MASTER_TOKEN;
+      var tokenKey = "fgt_token_" + repoName;
+      var token = localStorage.getItem(tokenKey);
+      if (!token) {
+        token = prompt(decodeEntities("Entrez le token pour ") + repoName + " :");
+        if (token) {
+          localStorage.setItem(tokenKey, token);
+          setFgtToken(token);
+          setIsTokenSaved(true);
+        } else {
+          alert("Token requis pour cette action.");
+          return null;
+        }
+      }
+      MASTER_TOKEN = token;
+      return token;
+    }
+
+    var saveFgtToken = function() {
+      if (fgtToken.trim()) {
+        localStorage.setItem('fgt_token_' + repoName, fgtToken.trim());
+        setIsTokenSaved(true);
+        setMsg({ text: TEXTS.tokenSaved, type: "success" });
+        MASTER_TOKEN = fgtToken.trim();
+      } else {
+        setMsg({ text: TEXTS.tokenInvalid, type: "error" });
+      }
+    };
+
+    useEffect(function() {
+      var load = async function() {
+        if (!vendeur || isPlaceholder) { setIsLoading(false); return; }
+        try {
+          var url = "https://api.github.com/repos/mekeirish/" + repoName + "/contents/don.json";
+          var res = await fetch(url);
+          if (res.status === 404) {
+            var defaultData = {
+              settings: {
+                title: "Boutique de " + vendeur,
+                currency: "DZD",
+                showStock: true,
+                ntfyTopic: vendeur + "_commandes"
+              },
+              categories: [],
+              products: [],
+            };
+            setData(defaultData);
+            setEditableData(defaultData);
+          } else if (res.ok) {
+            var d = await res.json();
+            var decoded = base64ToUtf8(d.content);
+            setData(JSON.parse(decoded));
+            setEditableData(JSON.parse(decoded));
+          }
+        } catch (err) {
+          setMsg({ text: "Erreur: " + err.message, type: "error" });
+        }
+        setIsLoading(false);
+      };
+      load();
+    }, []);
+
+    // ---- SAUVEGARDE ----
+    var saveFile = async function(content) {
+      var token = getToken();
+      if (!token) throw new Error("Token requis.");
+      var url = "https://api.github.com/repos/mekeirish/" + repoName + "/contents/don.json";
+      var encoded = utf8ToBase64(JSON.stringify(content, null, 2));
+      var sha = null;
+      try {
+        var getRes = await fetch(url, { headers: { Authorization: "token " + token } });
+        if (getRes.ok) { var d = await getRes.json(); sha = d.sha; }
+      } catch (e) {}
+      var payload = { message: "Mise à jour", content: encoded, branch: "main" };
+      if (sha) payload.sha = sha;
+      var putRes = await fetch(url, {
+        method: "PUT",
+        headers: { Authorization: "token " + token, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!putRes.ok) { var err = await putRes.json(); throw new Error("GitHub " + putRes.status + ": " + err.message); }
+      return putRes.json();
+    };
+
+    var saveEditableData = async function() {
+      await saveFile(editableData);
+      setData(editableData);
+    };
+
+    // ---- GESTION ADMIN ----
+    var handleAdminClick = function() {
+      if (firebaseUser && isAdmin) {
+        setIsAdminAuthenticated(!isAdminAuthenticated);
+      } else {
+        setShowLoginModal(true);
+      }
+    };
+
+    var handleFirebaseLogin = async function(e) {
+      e.preventDefault();
+      setMsg({ text: "", type: "" });
+      setIsLoginProcessing(true);
+      try {
+        await auth.signInWithEmailAndPassword(loginEmail, loginPassword);
+        setShowLoginModal(false);
+        setLoginEmail('');
+        setLoginPassword('');
+        setMsg({ text: TEXTS.loginSuccess, type: "success" });
+      } catch (error) {
+        var errorMsg = TEXTS.loginError;
+        if (error.code === 'auth/user-not-found') errorMsg = "Utilisateur non trouv&eacute;";
+        else if (error.code === 'auth/wrong-password') errorMsg = "Mot de passe incorrect";
+        else if (error.code === 'auth/invalid-email') errorMsg = "Email invalide";
+        else if (error.message) errorMsg = "Erreur : " + error.message;
+        setMsg({ text: errorMsg, type: "error" });
+      }
+      setIsLoginProcessing(false);
+    };
+
+    var handleFirebaseLogout = function() {
+      auth.signOut().then(function() {
+        setIsAdminAuthenticated(false);
+        setMsg({ text: "D&eacute;connect&eacute;", type: "info" });
+      });
+    };
+
+    // ---- CRUD ----
+    var openCatModal = function(cat) {
+      if (cat === undefined) cat = null;
+      setModal({ open: true, type: "category", item: cat, creating: !cat });
+      var defaultVals = {};
+      schema.categories.fields.forEach(function(f) {
+        defaultVals[f.key] = cat?.[f.key] || f.default || "";
+      });
+      setFormData(defaultVals);
+    };
+
+    var saveCategory = function() {
+      var maxId = 0;
+      editableData.categories.forEach(function(c) { if (c.id > maxId) maxId = c.id; });
+      var newCat = { id: modal.creating ? maxId + 1 : modal.item.id };
+      schema.categories.fields.forEach(function(f) {
+        newCat[f.key] = formData[f.key] || f.default;
+      });
+      if (modal.creating) {
+        editableData.categories.push(newCat);
+      } else {
+        var idx = editableData.categories.findIndex(function(c) { return c.id === modal.item.id; });
+        if (idx > -1) editableData.categories[idx] = newCat;
+      }
+      setEditableData({ ...editableData });
+      closeModal();
+      setMsg({ text: TEXTS.categorySaved, type: "info" });
+    };
+
+    var deleteCategory = function(id) {
+      if (!confirm(decodeEntities(TEXTS.categoryConfirmDelete))) return;
+      setEditableData({
+        ...editableData,
+        categories: editableData.categories.filter(function(c) { return c.id !== id; }),
+        products: editableData.products.filter(function(p) { return p.categoryId !== id; }),
+      });
+      setMsg({ text: TEXTS.categoryDeleted, type: "info" });
+    };
+
+    var openProdModal = function(prod) {
+      if (prod === undefined) prod = null;
+      setModal({ open: true, type: "product", item: prod, creating: !prod });
+      var defaultVals = {};
+      schema.products.fields.forEach(function(f) {
+        if (f.key === "categoryId") {
+          var defaultCat = prod?.[f.key];
+          if (!defaultCat && editableData.categories.length > 0) {
+            defaultCat = selectedCategoryId || editableData.categories[0].id;
+          }
+          defaultVals[f.key] = defaultCat || "";
+        } else {
+          defaultVals[f.key] = prod?.[f.key] || f.default || "";
+        }
+      });
+      setFormData(defaultVals);
+    };
+
+    var saveProduct = function() {
+      var catId = formData.categoryId;
+      if (!catId || catId === "") {
+        if (editableData.categories.length > 0) {
+          catId = editableData.categories[0].id;
+        } else {
+          alert("Veuillez créer une catégorie avant d'ajouter un produit.");
+          return;
+        }
+      }
+      catId = Number(catId);
+
+      var maxId = 0;
+      editableData.products.forEach(function(p) { if (p.id > maxId) maxId = p.id; });
+      var newProd = { id: modal.creating ? maxId + 1 : modal.item.id };
+      schema.products.fields.forEach(function(f) {
+        var val = formData[f.key] !== undefined ? formData[f.key] : f.default;
+        if (f.key === "categoryId") {
+          newProd[f.key] = catId;
+        } else if (f.type === "number") {
+          newProd[f.key] = parseFloat(val) || 0;
+        } else {
+          newProd[f.key] = val;
+        }
+      });
+      if (modal.creating) {
+        editableData.products.push(newProd);
+      } else {
+        var idx = editableData.products.findIndex(function(p) { return p.id === modal.item.id; });
+        if (idx > -1) editableData.products[idx] = newProd;
+      }
+      setEditableData({ ...editableData });
+      closeModal();
+      setMsg({ text: TEXTS.productSaved, type: "info" });
+    };
+
+    var deleteProduct = function(id) {
+      if (!confirm(decodeEntities(TEXTS.productConfirmDelete))) return;
+      setEditableData({ ...editableData, products: editableData.products.filter(function(p) { return p.id !== id; }) });
+      setMsg({ text: TEXTS.productDeleted, type: "info" });
+    };
+
+    var handleCommit = async function() {
+      setIsCommitting(true);
+      try {
+        await saveEditableData();
+        setMsg({ text: TEXTS.saveSuccess, type: "success" });
+      } catch (err) {
+        setMsg({ text: TEXTS.saveFail + err.message, type: "error" });
+      }
+      setIsCommitting(false);
+    };
+
+    // ---- PANIER ----
+    var addToCart = function(product) {
+      if (product.stock <= 0) { alert(decodeEntities(TEXTS.outOfStock)); return; }
+      if (!sogUser) {
+        alert(decodeEntities(TEXTS.connect) + " " + decodeEntities(TEXTS.toOrder));
+        return;
+      }
+      setCart(function(prev) {
+        var existing = prev.find(function(i) { return i.id === product.id; });
+        if (existing) {
+          if (existing.quantity >= product.stock) { alert("Stock insuffisant"); return prev; }
+          return prev.map(function(i) {
+            return i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i;
+          });
+        }
+        return [...prev, { ...product, quantity: 1 }];
+      });
+    };
+
+    var updateQty = function(id, delta) {
+      setCart(function(prev) {
+        var item = prev.find(function(i) { return i.id === id; });
+        if (!item) return prev;
+        var newQty = item.quantity + delta;
+        if (newQty <= 0) return prev.filter(function(i) { return i.id !== id; });
+        if (newQty > item.stock) { alert("Stock insuffisant"); return prev; }
+        return prev.map(function(i) {
+          return i.id === id ? { ...i, quantity: newQty } : i;
+        });
+      });
+    };
+
+    var removeFromCart = function(id) {
+      setCart(function(prev) {
+        return prev.filter(function(i) { return i.id !== id; });
+      });
+    };
+
+    var getTotal = function() {
+      return cart.reduce(function(sum, i) {
+        return sum + i.price * i.quantity;
+      }, 0).toFixed(2);
+    };
+
+    // ---- ENVOI COMMANDE À SOG ----
+    var sendOrderToSOG = function(orderData) {
+      window.parent.postMessage({
+        type: 'SOG_ORDER',
+        payload: {
+          vendor: vendeur,
+          items: cart.map(function(i) {
+            return { name: i.name, quantity: i.quantity, price: i.price };
+          }),
+          total: parseFloat(getTotal()),
+          currency: editableData?.settings?.currency || "DZD",
+          customerName: orderData.name,
+          customerPhone: orderData.phone,
+          customerAddress: orderData.address,
+          comments: orderData.comments || ""
+        }
+      }, '*');
+    };
+
+    // ---- CHECKOUT (avec enregistrement direct dans Firebase) ----
+    var checkout = async function() {
+      if (cart.length === 0) { alert(decodeEntities(TEXTS.cartEmpty)); return; }
+      if (!sogUser) {
+        alert(decodeEntities(TEXTS.connect) + " " + decodeEntities(TEXTS.toOrder));
+        return;
+      }
+      if (!order.name.trim() || !order.address.trim() || !order.phone.trim()) {
+        alert("Veuillez remplir tous les champs obligatoires");
+        return;
+      }
+
+      console.log('📦 Passage de commande pour', sogUser.email, '(UID:', sogUser.uid, ')');
+
+      // ---- ENREGISTREMENT DIRECT DANS FIREBASE ----
+      try {
+        var orderData = {
+          userId: sogUser.uid,
+          customerEmail: sogUser.email,
+          vendor: vendeur,
+          items: cart.map(function(i) { return { name: i.name, quantity: i.quantity, price: i.price }; }),
+          total: parseFloat(getTotal()),
+          currency: editableData?.settings?.currency || "DZD",
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          customerName: order.name,
+          customerPhone: order.phone,
+          customerAddress: order.address,
+          comments: order.comments || ""
+        };
+        console.log('📝 Commande à enregistrer:', orderData);
+        await db.ref('orders').push(orderData);
+        console.log('✅ Commande enregistrée dans Firebase');
+
+        // ---- ENVOI À SOG POUR REAFFICHAGE ----
+        window.parent.postMessage({
+          type: 'SOG_ORDER_SAVED',
+          payload: { userId: sogUser.uid, email: sogUser.email }
+        }, '*');
+        console.log('📤 Notification SOG_ORDER_SAVED envoyée');
+
+      } catch (err) {
+        console.error('❌ Erreur Firebase:', err);
+        alert('Erreur lors de l\'enregistrement de la commande.');
+        return;
+      }
+
+      // ---- ENVOI À SOG ----
+      sendOrderToSOG(order);
+
+      // ---- NOTIFICATION NTFY ----
+      var topic = editableData?.settings?.ntfyTopic;
+      if (topic) {
+        var currencySymbol = editableData?.settings?.currency || "€";
+        var total = getTotal();
+        var message = decodeEntities(TEXTS.orderRecap) + "\n\n";
+        message += decodeEntities(TEXTS.client) + " : " + decodeEntities(order.name) + "\n";
+        message += decodeEntities(TEXTS.address) + " : " + decodeEntities(order.address) + "\n";
+        message += decodeEntities(TEXTS.phone) + " : " + decodeEntities(order.phone) + "\n";
+        message += decodeEntities(TEXTS.comment) + " : " + (order.comments ? decodeEntities(order.comments) : decodeEntities(TEXTS.none)) + "\n\n";
+        message += "----------------------------------------\n\n";
+        message += decodeEntities(TEXTS.items) + " :\n";
+        cart.forEach(function(i) {
+          message += "  " + decodeEntities(i.name) + " x" + i.quantity + " = " + (i.price * i.quantity).toFixed(2) + " " + currencySymbol + "\n";
+        });
+        message += "\n----------------------------------------\n\n";
+        message += decodeEntities(TEXTS.totalLabel) + " : " + total + " " + currencySymbol;
+
+        await fetch("https://ntfy.sh/" + topic, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic: topic, title: decodeEntities(TEXTS.newOrder), message: message, priority: 5 }),
+        }).catch(console.error);
+      }
+
+      setCart([]);
+      setOrder({ name: "", address: "", phone: "", comments: "" });
+      setShowCart(false);
+      alert("Commande validée !");
+    };
+
+    // ---- UTILITAIRES ----
+    var getCategoryName = function(id) {
+      var cat = data?.categories?.find(function(c) { return c.id === id; });
+      return cat ? cat.name : "Sans catégorie";
+    };
+
+    var hasPending = function(item, type) {
+      if (!data) return false;
+      var orig = type === "product" ? data.products.find(function(p) { return p.id === item.id; }) : data.categories.find(function(c) { return c.id === item.id; });
+      var draft = type === "product" ? editableData.products.find(function(p) { return p.id === item.id; }) : editableData.categories.find(function(c) { return c.id === item.id; });
+      return JSON.stringify(orig) !== JSON.stringify(draft);
+    };
+
+    var getFiltered = function() {
+      if (!editableData) return [];
+      var filtered = editableData.products || [];
+      if (selectedCategoryId) {
+        filtered = filtered.filter(function(p) { return p.categoryId === selectedCategoryId; });
+      }
+      if (searchQuery.trim()) {
+        var q = searchQuery.toLowerCase().trim();
+        filtered = filtered.filter(function(p) {
+          return p.name.toLowerCase().includes(q) || p.price.toString().includes(q);
+        });
+      }
+      return filtered;
+    };
+
+    var closeModal = function() {
+      setModal({ open: false, type: "", item: null, creating: false });
+    };
+
+    // ---- RENDER FIELD ----
+    var renderField = function(field) {
+      var val = formData[field.key] || "";
+      var onChange = function(e) {
+        setFormData({ ...formData, [field.key]: e.target.value });
+      };
+
+      if (field.type === "select") {
+        var options = field.options === "categories" ? (editableData?.categories || []) : [];
+        if (options.length === 0) {
+          return <p className="text-yellow-400 text-sm">Aucune catégorie disponible.</p>;
+        }
+        return (
+          <select key={field.key} value={val} onChange={onChange} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" required>
+            {options.map(function(opt) {
+              return <option key={opt.id} value={opt.id}>{decodeEntities(opt.name)}</option>;
+            })}
+          </select>
+        );
+      }
+      if (field.type === "textarea") {
+        return <textarea key={field.key} value={val} onChange={onChange} placeholder={decodeEntities(field.label)} rows={field.rows || 2} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none resize-y" />;
+      }
+      if (field.key === 'image') {
+        return (
+          <div key={field.key} className="flex gap-2 items-center">
+            <input type="text" step={field.step} maxLength={field.maxLength} value={val} onChange={onChange} placeholder={decodeEntities(field.label)} className="glass-input flex-1 px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" />
+            <button onClick={function() { openCloudinaryWidget(field.key); }} className="glass-btn px-3 py-2 rounded-xl text-sm font-medium" type="button" title={decodeEntities(TEXTS.uploadImage)}>
+              Image
+            </button>
+            {val && (
+              <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-slate-800/50 border border-white/10">
+                <img src={val} alt={decodeEntities(TEXTS.preview)} className="w-full h-full object-cover" onError={function(e) { e.target.style.display = 'none'; }} />
+              </div>
+            )}
+          </div>
+        );
+      }
+      return (
+        <input key={field.key} type={field.type || "text"} step={field.step} maxLength={field.maxLength} value={val} onChange={onChange} placeholder={decodeEntities(field.label)} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" />
+      );
+    };
+
+    // ---- RENDU ----
+    if (isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-900">
+          <div className="spinner"></div>
+        </div>
+      );
+    }
+
+    if (!vendeur || isPlaceholder) {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
+          <div className="glass max-w-md w-full p-6 rounded-2xl text-center">
+            <h2 className="text-xl font-bold text-red-400">{decodeEntities(TEXTS.configRequired)}</h2>
+            <p className="text-gray-300 mt-2">{isPlaceholder ? decodeEntities(TEXTS.templateNotConfigured) : decodeEntities(TEXTS.vendorIncorrect)}</p>
+            <p className="text-sm text-gray-400 mt-2">{decodeEntities(TEXTS.useForkeur)}</p>
+          </div>
+        </div>
+      );
+    }
+
+    var settings = editableData?.settings || {};
+    var currency = settings.currency || "€";
+    var cartCount = cart.reduce(function(s, i) { return s + i.quantity; }, 0);
+
+    return (
+      <div className="min-h-screen bg-slate-900 text-white p-4">
+
+        <header className="glass-header sticky top-0 z-30 px-4 py-3 rounded-xl">
+          <div className="flex flex-wrap items-center justify-between">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-xl font-bold text-white">{decodeEntities(settings.title || TEXTS.shopTitle)}</h1>
+              {sogUser ? (
+                <span className="text-xs bg-emerald-900/40 text-emerald-200 px-2 py-1 rounded-full">
+                  {decodeEntities(TEXTS.connectedAs)} {decodeEntities(sogUser.name)}
+                </span>
+              ) : isReady ? (
+                <span className="text-xs bg-yellow-900/40 text-yellow-200 px-2 py-1 rounded-full">
+                  {decodeEntities(TEXTS.invite)}
+                </span>
+              ) : null}
+              {firebaseUser && isAdmin && (
+                <span className="text-xs bg-blue-900/40 text-blue-200 px-2 py-1 rounded-full">
+                  🔐 Admin
+                </span>
+              )}
+            </div>
+            <div className="flex gap-2 items-center">
+              {firebaseUser && isAdmin ? (
+                <>
+                  <button onClick={function() { setIsAdminAuthenticated(!isAdminAuthenticated); }} className="glass-btn-secondary px-4 py-2 rounded-xl text-sm font-medium">
+                    {isAdminAuthenticated ? decodeEntities(TEXTS.admin) : "Voir admin"}
+                  </button>
+                  <button onClick={handleFirebaseLogout} className="glass-btn-secondary px-4 py-2 rounded-xl text-sm font-medium">
+                    {decodeEntities(TEXTS.logoutBtn)}
+                  </button>
+                </>
+              ) : (
+                <button onClick={handleAdminClick} className="glass-btn-secondary px-4 py-2 rounded-xl text-sm font-medium">
+                  {decodeEntities(TEXTS.admin)}
+                </button>
+              )}
+              <button onClick={function() { setShowCart(!showCart); }} className="glass-btn relative px-4 py-2 rounded-xl text-sm font-medium">
+                {decodeEntities(TEXTS.cart)}
+                {cartCount > 0 && (
+                  <span className="cart-badge">{cartCount}</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {!sogUser && isReady && (
+          <div className="mt-4 p-3 glass-alert bg-yellow-900/20 border-yellow-700/30 rounded-xl text-yellow-200 text-center">
+            {decodeEntities(TEXTS.inviteMode)} <a href="#" onClick={function(e) { e.preventDefault(); window.parent.postMessage({ type: 'SOG_LOGIN_REQUEST' }, '*'); }} className="underline hover:text-yellow-100">{decodeEntities(TEXTS.connect)}</a> {decodeEntities(TEXTS.toOrder)}
+          </div>
+        )}
+
+        {msg.text && (
+          <div className={'mt-4 p-3 glass-alert rounded-xl border text-sm ' + (msg.type === 'success' ? 'bg-emerald-900/20 border-emerald-700/30 text-emerald-200' : msg.type === 'error' ? 'bg-red-900/20 border-red-700/30 text-red-200' : 'bg-blue-900/20 border-blue-700/30 text-blue-200')}>
+            {decodeEntities(msg.text)}
+          </div>
+        )}
+
+        <div className="max-w-7xl mx-auto mt-6">
+
+          {isAdminAuthenticated ? (
+            // ---- PANEL ADMIN ----
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white">{decodeEntities(TEXTS.adminPanel)}</h2>
+
+              <div className="glass-card p-6 rounded-2xl">
+                <h3 className="font-semibold text-white mb-3">{decodeEntities(TEXTS.configTitle)}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <input type="text" value={editableData?.settings?.title || ""} onChange={function(e) { setEditableData({ ...editableData, settings: { ...editableData.settings, title: e.target.value } }); }} placeholder="Titre" className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" />
+                  <input type="text" value={editableData?.settings?.currency || ""} onChange={function(e) { setEditableData({ ...editableData, settings: { ...editableData.settings, currency: e.target.value } }); }} placeholder={decodeEntities(TEXTS.configCurrency)} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" />
+                  <input type="text" value={editableData?.settings?.ntfyTopic || ""} onChange={function(e) { setEditableData({ ...editableData, settings: { ...editableData.settings, ntfyTopic: e.target.value } }); }} placeholder={decodeEntities(TEXTS.configTopic)} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" />
+                </div>
+              </div>
+
+              <div className="glass-card p-6 rounded-2xl">
+                <h3 className="font-semibold text-white mb-3">{decodeEntities(TEXTS.fgtTitle)}</h3>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="password"
+                    value={fgtToken}
+                    onChange={function(e) { setFgtToken(e.target.value); setIsTokenSaved(false); }}
+                    placeholder={decodeEntities(TEXTS.fgtPlaceholder)}
+                    className="glass-input flex-1 px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
+                  />
+                  <button onClick={saveFgtToken} className="glass-btn px-4 py-2 rounded-xl text-sm font-medium">
+                    {isTokenSaved ? 'Sauvegardé' : 'Sauvegarder'}
+                  </button>
+                </div>
+                {isTokenSaved && (
+                  <p className="text-xs text-emerald-400 mt-2">{decodeEntities(TEXTS.fgtSaved)}</p>
+                )}
+                <p className="text-xs text-gray-400 mt-1">{decodeEntities(TEXTS.fgtInfo)}</p>
+              </div>
+
+              <div className="glass-card p-6 rounded-2xl">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-semibold text-white text-lg">{decodeEntities(TEXTS.categories)}</h3>
+                  <button onClick={function() { openCatModal(null); }} className="glass-btn px-4 py-2 rounded-xl text-sm font-medium">
+                    {decodeEntities(TEXTS.addCategory)}
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {(editableData?.categories || []).map(function(c) {
+                    return (
+                      <div key={c.id} className={'flex items-center justify-between p-3 rounded-xl bg-white/5 border ' + (hasPending(c, "category") ? 'border-yellow-700/50' : 'border-white/10')}>
+                        <span className="text-sm text-white font-medium">{decodeEntities(c.name)}</span>
+                        <div className="flex gap-2">
+                          <button onClick={function() { openCatModal(c); }} className="text-gray-400 hover:text-white text-sm px-2 py-1 rounded bg-white/5">
+                            {decodeEntities(TEXTS.modify)}
+                          </button>
+                          <button onClick={function() { deleteCategory(c.id); }} className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded bg-white/5">
+                            {decodeEntities(TEXTS.delete)}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {editableData?.categories?.length === 0 && (
+                    <p className="text-gray-400 text-sm text-center py-4">Aucune catégorie pour l'instant.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="glass-card p-6 rounded-2xl">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-semibold text-white text-lg">{decodeEntities(TEXTS.products)}</h3>
+                  <button onClick={function() { openProdModal(null); }} className="glass-btn px-4 py-2 rounded-xl text-sm font-medium">
+                    {decodeEntities(TEXTS.addProduct)}
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {(editableData?.products || []).map(function(p) {
+                    return (
+                      <div key={p.id} className={'flex items-center gap-3 p-3 rounded-xl bg-white/5 border ' + (hasPending(p, "product") ? 'border-yellow-700/50' : 'border-white/10')}>
+                        <img src={p.image} alt={p.name} className="w-10 h-10 object-cover rounded-xl" onError={function(e) { e.target.src = "https://via.placeholder.com/50"; }} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">{decodeEntities(p.name)}</p>
+                          <p className="text-xs text-gray-400">{p.price}{currency} · {decodeEntities(getCategoryName(p.categoryId))} · {decodeEntities(TEXTS.stockInfo)}{p.stock}</p>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button onClick={function() { openProdModal(p); }} className="text-gray-400 hover:text-white text-sm px-2 py-1 rounded bg-white/5">
+                            {decodeEntities(TEXTS.modify)}
+                          </button>
+                          <button onClick={function() { deleteProduct(p.id); }} className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded bg-white/5">
+                            {decodeEntities(TEXTS.delete)}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {editableData?.products?.length === 0 && (
+                    <p className="text-gray-400 text-sm text-center py-4">Aucun produit pour l'instant.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="glass-card p-6 rounded-2xl">
+                <button onClick={handleCommit} disabled={isCommitting} className={'glass-btn w-full py-3 rounded-xl font-semibold ' + (isCommitting ? 'opacity-50' : '')}>
+                  {isCommitting ? decodeEntities(TEXTS.saving) : decodeEntities(TEXTS.commit)}
+                </button>
+              </div>
+            </div>
+          ) : (
+            // ---- CATALOGUE PUBLIC ----
+            <div>
+              <div className="mb-4">
+                <input type="text" value={searchQuery} onChange={function(e) { setSearchQuery(e.target.value); }} placeholder={decodeEntities(TEXTS.search)} className="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500/50 outline-none" />
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-4 overflow-x-auto pb-2">
+                <button onClick={function() { setSelectedCategoryId(null); }} className={'glass-category px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ' + (!selectedCategoryId ? 'active' : '')}>
+                  {decodeEntities(TEXTS.all)}
+                </button>
+                {(editableData?.categories || []).map(function(c) {
+                  return (
+                    <button key={c.id} onClick={function() { setSelectedCategoryId(c.id); }} className={'glass-category px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ' + (selectedCategoryId === c.id ? 'active' : '')}>
+                      {decodeEntities(c.name)}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {getFiltered().map(function(p) {
+                  var isOutOfStock = p.stock <= 0;
+                  return (
+                    <div key={p.id} className="glass-card rounded-2xl overflow-hidden transition-all hover:scale-[1.02]">
+                      <div className="aspect-square w-full overflow-hidden bg-slate-800/50">
+                        <img
+                          src={p.image}
+                          alt={decodeEntities(p.name)}
+                          onClick={function() { setExpandedImage(p.image); }}
+                          className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-300"
+                          onError={function(e) { e.target.src = "https://via.placeholder.com/200"; }}
+                        />
+                      </div>
+                      <div className="p-3 flex flex-col gap-1">
+                        <span className="text-xs text-gray-400">{decodeEntities(getCategoryName(p.categoryId))}</span>
+                        <h3 className="text-sm font-semibold text-white truncate">{decodeEntities(p.name)}</h3>
+                        <p className="text-base font-bold text-blue-400">{p.price}{currency}</p>
+                        {settings.showStock && (
+                          <p className={'text-xs ' + (isOutOfStock ? 'text-red-400' : 'text-gray-400')}>
+                            {isOutOfStock ? decodeEntities(TEXTS.rupture) : decodeEntities(TEXTS.stockInfo) + p.stock}
+                          </p>
+                        )}
+                        {sogUser ? (
+                          <button onClick={function() { addToCart(p); }} disabled={isOutOfStock} className={'glass-btn w-full mt-2 text-sm ' + (isOutOfStock ? 'opacity-50' : '')}>
+                            {isOutOfStock ? decodeEntities(TEXTS.outOfStock) : decodeEntities(TEXTS.addToCart)}
+                          </button>
+                        ) : (
+                          <button disabled className="glass-btn-secondary w-full mt-2 text-sm opacity-50 cursor-not-allowed">
+                            {decodeEntities(TEXTS.connectionRequired)}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {getFiltered().length === 0 && (
+                <div className="text-center py-10 text-gray-400">
+                  {searchQuery ? decodeEntities(TEXTS.noResult) : decodeEntities(TEXTS.emptyCategory)}
+                </div>
+              )}
+
+              <div className="mt-8 text-center text-xs text-gray-500 border-t border-slate-800 pt-4">
+                {(data?.products || []).length} {decodeEntities(TEXTS.products)} · {(data?.categories || []).length} {decodeEntities(TEXTS.categories)}
+                {settings.ntfyTopic && <span className="ml-4">{settings.ntfyTopic}</span>}
+                {sogUser && <span className="ml-4">{decodeEntities(TEXTS.connected)}</span>}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ---- MODALS ---- */}
+
+        {showLoginModal && (
+          <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4 modal-animate" onClick={function() { setShowLoginModal(false); }}>
+            <div className="glass-modal max-w-md w-full p-6 rounded-2xl shadow-2xl" onClick={function(e) { e.stopPropagation(); }}>
+              <h3 className="text-xl font-bold text-white mb-4">{decodeEntities(TEXTS.passwordModalTitle)}</h3>
+              <form onSubmit={handleFirebaseLogin} className="space-y-4">
+                <input type="email" placeholder={decodeEntities(TEXTS.loginWithEmail)} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" value={loginEmail} onChange={function(e) { setLoginEmail(e.target.value); }} required />
+                <input type="password" placeholder={decodeEntities(TEXTS.passwordField)} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" value={loginPassword} onChange={function(e) { setLoginPassword(e.target.value); }} required />
+                <button type="submit" className="glass-btn w-full py-2 rounded-xl font-medium" disabled={isLoginProcessing}>
+                  {isLoginProcessing ? 'Connexion...' : decodeEntities(TEXTS.loginBtn)}
+                </button>
+              </form>
+              <div className="mt-4 text-right">
+                <button onClick={function() { setShowLoginModal(false); }} className="text-gray-400 hover:text-white text-sm">{decodeEntities(TEXTS.cancel)}</button>
+              </div>
+              {msg.text && msg.type === "error" && <p className="text-red-400 text-sm mt-2">{decodeEntities(msg.text)}</p>}
+            </div>
+          </div>
+        )}
+
+        {expandedImage && (
+          <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4" onClick={function() { setExpandedImage(null); }}>
+            <div className="max-w-3xl w-full" onClick={function(e) { e.stopPropagation(); }}>
+              <img src={expandedImage} alt="Agrandissement" className="w-full rounded-xl" onError={function(e) { e.target.src = "https://via.placeholder.com/800"; }} />
+              <button onClick={function() { setExpandedImage(null); }} className="absolute top-4 right-4 text-white text-2xl">X</button>
+            </div>
+          </div>
+        )}
+
+        {showCart && (
+          <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4 modal-animate" onClick={function() { setShowCart(false); }}>
+            <div className="glass-modal max-w-md w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl" onClick={function(e) { e.stopPropagation(); }}>
+              <div className="flex justify-between items-start">
+                <h3 className="text-xl font-bold text-white mb-4">{decodeEntities(TEXTS.cartTitle)}</h3>
+                <button className="text-gray-400 hover:text-white text-3xl leading-none" onClick={function() { setShowCart(false); }}>X</button>
+              </div>
+              {cart.length === 0 ? (
+                <p className="py-4 text-center text-gray-400">{decodeEntities(TEXTS.cartEmpty)}</p>
+              ) : (
+                <div>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {cart.map(function(i) {
+                      return (
+                        <div key={i.id} className="flex items-center gap-3 bg-white/5 p-2 rounded-xl border border-white/10">
+                          <img src={i.image} alt={decodeEntities(i.name)} className="w-10 h-10 object-cover rounded-xl" onError={function(e) { e.target.src = "https://via.placeholder.com/50"; }} />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-white">{decodeEntities(i.name)}</p>
+                            <p className="text-xs text-gray-400">{i.price}{currency}</p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button onClick={function() { updateQty(i.id, -1); }} className="glass-btn-secondary text-xs px-2 py-1">-</button>
+                            <span className="w-6 text-center text-white">{i.quantity}</span>
+                            <button onClick={function() { updateQty(i.id, 1); }} className="glass-btn-secondary text-xs px-2 py-1">+</button>
+                            <button onClick={function() { removeFromCart(i.id); }} className="text-red-400 hover:text-red-300 text-sm ml-1">X</button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between font-bold border-t border-white/10 pt-2 mt-2">
+                    <span className="text-white">{decodeEntities(TEXTS.total)}</span>
+                    <span className="text-blue-400">{getTotal()}{currency}</span>
+                  </div>
+
+                  <div className={'space-y-2 mt-4 ' + (!sogUser ? 'opacity-50 pointer-events-none' : '')}>
+                    <input type="text" value={order.name} onChange={function(e) { setOrder({ ...order, name: e.target.value }); }} placeholder={decodeEntities(TEXTS.namePlaceholder)} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" />
+                    <input type="text" value={order.address} onChange={function(e) { setOrder({ ...order, address: e.target.value }); }} placeholder={decodeEntities(TEXTS.addressPlaceholder)} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" />
+                    <input type="tel" value={order.phone} onChange={function(e) { setOrder({ ...order, phone: e.target.value }); }} placeholder={decodeEntities(TEXTS.phonePlaceholder)} className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none" />
+                    <textarea value={order.comments} onChange={function(e) { setOrder({ ...order, comments: e.target.value }); }} placeholder={decodeEntities(TEXTS.commentsPlaceholder)} rows="2" className="glass-input w-full px-4 py-2 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 outline-none resize-y" />
+                  </div>
+
+                  {!sogUser && (
+                    <div className="mt-2 text-yellow-400 text-sm text-center">
+                      {decodeEntities(TEXTS.loginRequired)}
+                    </div>
+                  )}
+
+                  <div className="modal-action mt-4">
+                    <button onClick={checkout} disabled={!sogUser || cart.length === 0} className={'glass-btn w-full py-3 rounded-xl font-semibold ' + (!sogUser || cart.length === 0 ? 'opacity-50' : '')}>
+                      {decodeEntities(TEXTS.validateOrder)}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {modal.open && (
+          <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4 modal-animate" onClick={closeModal}>
+            <div className="glass-modal max-w-md w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl" onClick={function(e) { e.stopPropagation(); }}>
+              <h3 className="text-xl font-bold text-white mb-4">
+                {modal.creating ? (modal.type === "category" ? decodeEntities(TEXTS.newCategory) : decodeEntities(TEXTS.newProduct)) : (modal.type === "category" ? decodeEntities(TEXTS.editCategoryTitle) : decodeEntities(TEXTS.editProductTitle))}
+              </h3>
+              <div className="space-y-3">
+                {modal.type === "category"
+                  ? schema.categories.fields.map(function(f) { return renderField(f); })
+                  : schema.products.fields.map(function(f) {
+                      if (f.key === "categoryId") return renderField({ ...f, options: "categories" });
+                      return renderField(f);
+                    })
+                }
+              </div>
+              <div className="flex gap-2 mt-4">
+                <button onClick={modal.type === "category" ? saveCategory : saveProduct} className="glass-btn flex-1 py-2 rounded-xl font-medium">
+                  {modal.creating ? decodeEntities(TEXTS.create) : decodeEntities(TEXTS.save)}
+                </button>
+                <button onClick={closeModal} className="glass-btn-secondary flex-1 py-2 rounded-xl font-medium">{decodeEntities(TEXTS.cancel)}</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+    );
+  }
+
+  var container = document.getElementById('root');
+  var root = ReactDOM.createRoot(container);
+  root.render(React.createElement(App, null));
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./sw.js');
+    });
+  }
+</script>
+</body>
+</html>
